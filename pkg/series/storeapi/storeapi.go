@@ -4,6 +4,10 @@ import (
 	"context"
 	"io"
 
+	"crypto/tls"
+	"crypto/x509"
+	"io/ioutil"
+
 	"github.com/go-kit/kit/log"
 	"github.com/pkg/errors"
 	"github.com/prometheus/prometheus/pkg/timestamp"
@@ -20,11 +24,53 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/prometheus/client_golang/prometheus"
-	"github.com/thanos-io/thanos/pkg/tls"
 	"google.golang.org/grpc/credentials"
 	thanostracing "github.com/thanos-io/thanos/pkg/tracing"
 
 )
+
+func newCustomClientConfig(logger log.Logger, cert, key, caCert, serverName string, insecureSkipVerify bool) (*tls.Config, error) {
+	var certPool *x509.CertPool
+	if caCert != "" {
+		caPEM, err := ioutil.ReadFile(caCert)
+		if err != nil {
+			return nil, errors.Wrap(err, "reading client CA")
+		}
+
+		certPool = x509.NewCertPool()
+		if !certPool.AppendCertsFromPEM(caPEM) {
+			return nil, errors.Wrap(err, "building client CA")
+		}
+		level.Info(logger).Log("msg", "TLS client using provided certificate pool")
+	} else {
+		var err error
+		certPool, err = x509.SystemCertPool()
+		if err != nil {
+			return nil, errors.Wrap(err, "reading system certificate pool")
+		}
+		level.Info(logger).Log("msg", "TLS client using system certificate pool")
+	}
+
+	tlsCfg := &tls.Config{
+		RootCAs: certPool,
+		InsecureSkipVerify: insecureSkipVerify,
+	}
+
+	if (key != "") != (cert != "") {
+		return nil, errors.New("both client key and certificate must be provided")
+	}
+
+	if cert != "" {
+		cert, err := tls.LoadX509KeyPair(cert, key)
+		if err != nil {
+			return nil, errors.Wrap(err, "client credentials")
+		}
+		tlsCfg.Certificates = []tls.Certificate{cert}
+		level.Info(logger).Log("msg", "TLS client authentication enabled")
+	}
+	return tlsCfg, nil
+}
+
 
 // StoreClientGRPCOpts creates gRPC dial options for connecting to a store client.
 func InsecureClient(logger log.Logger, reg *prometheus.Registry, tracer opentracing.Tracer, secure bool, cert, key, caCert, serverName string) ([]grpc.DialOption, error) {
@@ -59,11 +105,11 @@ func InsecureClient(logger log.Logger, reg *prometheus.Registry, tracer opentrac
 
 	level.Info(logger).Log("msg", "enabling client to server TLS")
 
-	tlsCfg, err := tls.NewClientConfig(logger, cert, key, caCert, serverName)
+	tlsCfg, err := newCustomClientConfig(logger, cert, key, caCert, serverName, !secure)
 	if err != nil {
 		return nil, err
 	}
-	tlsCfg.InsecureSkipVerify = true
+
 	return append(dialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsCfg))), nil
 }
 
@@ -84,7 +130,7 @@ func (i Series) Read(ctx context.Context, params series.Params) (series.Set, err
 		i.conf.TLSConfig.CertFile,
 		i.conf.TLSConfig.KeyFile,
 		i.conf.TLSConfig.CAFile,
-		i.conf.Endpoint)
+		i.conf.TLSConfig.ServerName)
 
 	if err != nil {
 		return nil, errors.Wrap(err, "error initializing GRPC options")
