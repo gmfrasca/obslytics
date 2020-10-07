@@ -9,12 +9,64 @@ import (
 	"github.com/prometheus/prometheus/pkg/timestamp"
 	"github.com/prometheus/prometheus/storage"
 	"github.com/thanos-community/obslytics/pkg/series"
-	"github.com/thanos-io/thanos/pkg/extgrpc"
 	"github.com/thanos-io/thanos/pkg/store/labelpb"
 	"github.com/thanos-io/thanos/pkg/store/storepb"
 	tracing "github.com/thanos-io/thanos/pkg/tracing/client"
 	"google.golang.org/grpc"
+
+	"math"
+	"github.com/go-kit/kit/log/level"
+	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/thanos-io/thanos/pkg/tls"
+	"google.golang.org/grpc/credentials"
+	thanostracing "github.com/thanos-io/thanos/pkg/tracing"
+
 )
+
+// StoreClientGRPCOpts creates gRPC dial options for connecting to a store client.
+func InsecureClient(logger log.Logger, reg *prometheus.Registry, tracer opentracing.Tracer, secure bool, cert, key, caCert, serverName string) ([]grpc.DialOption, error) {
+	grpcMets := grpc_prometheus.NewClientMetrics()
+	grpcMets.EnableClientHandlingTimeHistogram(
+		grpc_prometheus.WithHistogramBuckets([]float64{0.001, 0.01, 0.1, 0.3, 0.6, 1, 3, 6, 9, 20, 30, 60, 90, 120}),
+	)
+	dialOpts := []grpc.DialOption{
+		// We want to make sure that we can receive huge gRPC messages from storeAPI.
+		// On TCP level we can be fine, but the gRPC overhead for huge messages could be significant.
+		// Current limit is ~2GB.
+		// TODO(bplotka): Split sent chunks on store node per max 4MB chunks if needed.
+		grpc.WithDefaultCallOptions(grpc.MaxCallRecvMsgSize(math.MaxInt32)),
+		grpc.WithUnaryInterceptor(
+			grpc_middleware.ChainUnaryClient(
+				grpcMets.UnaryClientInterceptor(),
+				thanostracing.UnaryClientInterceptor(tracer),
+			),
+		),
+		grpc.WithStreamInterceptor(
+			grpc_middleware.ChainStreamClient(
+				grpcMets.StreamClientInterceptor(),
+				thanostracing.StreamClientInterceptor(tracer),
+			),
+		),
+	}
+	if reg != nil {
+		reg.MustRegister(grpcMets)
+	}
+
+
+
+	level.Info(logger).Log("msg", "enabling client to server TLS")
+
+	tlsCfg, err := tls.NewClientConfig(logger, cert, key, caCert, serverName)
+	if err != nil {
+		return nil, err
+	}
+	tlsCfg.InsecureSkipVerify = true
+	return append(dialOpts, grpc.WithTransportCredentials(credentials.NewTLS(tlsCfg))), nil
+}
+
 
 // Series implements input.Reader.
 type Series struct {
@@ -27,7 +79,7 @@ func NewSeries(logger log.Logger, conf series.Config) (Series, error) {
 }
 
 func (i Series) Read(ctx context.Context, params series.Params) (series.Set, error) {
-	dialOpts, err := extgrpc.StoreClientGRPCOpts(i.logger, nil, tracing.NoopTracer(),
+	dialOpts, err := InsecureClient(i.logger, nil, tracing.NoopTracer(),
 		!i.conf.TLSConfig.InsecureSkipVerify,
 		i.conf.TLSConfig.CertFile,
 		i.conf.TLSConfig.KeyFile,
@@ -42,6 +94,7 @@ func (i Series) Read(ctx context.Context, params series.Params) (series.Set, err
 	if err != nil {
 		return nil, errors.Wrap(err, "error initializing GRPC dial context")
 	}
+
 
 	matchers, err := storepb.TranslatePromMatchers(params.Matchers...)
 	if err != nil {
