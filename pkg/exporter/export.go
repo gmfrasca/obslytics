@@ -5,7 +5,7 @@ import (
 	"io"
 
 	"github.com/pkg/errors"
-	"github.com/thanos-community/obslytics/pkg/dataframe"
+	"github.com/gmfrasca/obslytics/pkg/dataframe"
 	"github.com/thanos-io/thanos/pkg/objstore"
 	"github.com/thanos-io/thanos/pkg/objstore/client"
 )

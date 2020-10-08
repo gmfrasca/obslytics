@@ -1,4 +1,4 @@
-module github.com/thanos-community/obslytics
+module github.com/gmfrasca/obslytics
 
 go 1.14
 
@@ -21,6 +21,8 @@ require (
 	github.com/googleapis/gnostic v0.5.1 // indirect
 	github.com/gopherjs/gopherjs v0.0.0-20191106031601-ce3c9ade29de // indirect
 	github.com/gorilla/websocket v1.4.0 // indirect
+	github.com/grpc-ecosystem/go-grpc-middleware v1.1.0
+	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/hashicorp/go-hclog v0.14.1 // indirect
 	github.com/hashicorp/go-msgpack v0.5.5 // indirect
 	github.com/klauspost/cpuid v1.3.1 // indirect
@@ -29,7 +31,9 @@ require (
 	github.com/mitchellh/mapstructure v1.3.3 // indirect
 	github.com/oklog/run v1.1.0
 	github.com/onsi/ginkgo v1.14.0 // indirect
+	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pkg/errors v0.9.1
+	github.com/prometheus/client_golang v1.7.1
 	github.com/prometheus/common v0.13.0
 	github.com/prometheus/prometheus v1.8.2-0.20200921162505-7e1c27b853ff
 	github.com/sercand/kuberesolver v2.4.0+incompatible // indirect
@@ -42,6 +46,7 @@ require (
 	github.com/xitongsys/parquet-go-source v0.0.0-20200817004010-026bad9b25d0
 	go.uber.org/automaxprocs v1.3.0
 	go.uber.org/zap v1.14.1 // indirect
+	golang.org/dl v0.0.0-20200909201834-1fb66e01de4d // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/grpc v1.30.0
 	gopkg.in/alecthomas/kingpin.v2 v2.2.6

@@ -11,15 +11,15 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/prometheus/pkg/timestamp"
 	"github.com/prometheus/prometheus/promql/parser"
-	"github.com/thanos-community/obslytics/pkg/dataframe"
-	"github.com/thanos-community/obslytics/pkg/series"
+	"github.com/gmfrasca/obslytics/pkg/dataframe"
+	"github.com/gmfrasca/obslytics/pkg/series"
 	"github.com/thanos-io/thanos/pkg/model"
 
 	"github.com/thanos-io/thanos/pkg/extflag"
 	"gopkg.in/alecthomas/kingpin.v2"
 
-	exportertfactory "github.com/thanos-community/obslytics/pkg/exporter/factory"
-	infactory "github.com/thanos-community/obslytics/pkg/series/factory"
+	exportertfactory "github.com/gmfrasca/obslytics/pkg/exporter/factory"
+	infactory "github.com/gmfrasca/obslytics/pkg/series/factory"
 )
 
 func registerExport(m map[string]setupFunc, app *kingpin.Application) {

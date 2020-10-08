@@ -5,9 +5,9 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/pkg/errors"
-	"github.com/thanos-community/obslytics/pkg/series"
-	"github.com/thanos-community/obslytics/pkg/series/promread"
-	"github.com/thanos-community/obslytics/pkg/series/storeapi"
+	"github.com/gmfrasca/obslytics/pkg/series"
+	"github.com/gmfrasca/obslytics/pkg/series/promread"
+	"github.com/gmfrasca/obslytics/pkg/series/storeapi"
 	"gopkg.in/yaml.v2"
 )
 

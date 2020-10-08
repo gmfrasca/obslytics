@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/prometheus/prometheus/pkg/timestamp"
 	"github.com/prometheus/prometheus/storage"
-	"github.com/thanos-community/obslytics/pkg/series"
+	"github.com/gmfrasca/obslytics/pkg/series"
 	"github.com/thanos-io/thanos/pkg/store/labelpb"
 	"github.com/thanos-io/thanos/pkg/store/storepb"
 	tracing "github.com/thanos-io/thanos/pkg/tracing/client"

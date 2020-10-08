@@ -6,8 +6,8 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/thanos-community/obslytics/pkg/dataframe"
-	"github.com/thanos-community/obslytics/pkg/exporter"
+	"github.com/gmfrasca/obslytics/pkg/dataframe"
+	"github.com/gmfrasca/obslytics/pkg/exporter"
 	parquetwriter "github.com/xitongsys/parquet-go-source/writerfile"
 	"github.com/xitongsys/parquet-go/parquet"
 	"github.com/xitongsys/parquet-go/source"

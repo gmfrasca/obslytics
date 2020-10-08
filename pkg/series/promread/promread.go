@@ -15,8 +15,8 @@ import (
 	"github.com/prometheus/prometheus/storage"
 	"github.com/prometheus/prometheus/storage/remote"
 	"github.com/prometheus/prometheus/tsdb/chunkenc"
-	"github.com/thanos-community/obslytics/pkg/series"
-	"github.com/thanos-community/obslytics/pkg/version"
+	"github.com/gmfrasca/obslytics/pkg/series"
+	"github.com/gmfrasca/obslytics/pkg/version"
 )
 
 type Series struct {

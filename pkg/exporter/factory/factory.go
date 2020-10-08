@@ -6,9 +6,9 @@ import (
 
 	"github.com/go-kit/kit/log"
 	"github.com/pkg/errors"
-	"github.com/thanos-community/obslytics/pkg/exporter"
-	"github.com/thanos-community/obslytics/pkg/exporter/parquet"
-	"github.com/thanos-community/obslytics/pkg/version"
+	"github.com/gmfrasca/obslytics/pkg/exporter"
+	"github.com/gmfrasca/obslytics/pkg/exporter/parquet"
+	"github.com/gmfrasca/obslytics/pkg/version"
 	"github.com/thanos-io/thanos/pkg/objstore/client"
 	"gopkg.in/yaml.v2"
 )

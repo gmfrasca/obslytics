@@ -10,7 +10,7 @@ import (
 	"github.com/cortexproject/cortex/integration/e2e"
 	"github.com/prometheus/prometheus/pkg/labels"
 	"github.com/prometheus/prometheus/pkg/timestamp"
-	"github.com/thanos-community/obslytics/pkg/series"
+	"github.com/gmfrasca/obslytics/pkg/series"
 	http_util "github.com/thanos-io/thanos/pkg/http"
 	"github.com/thanos-io/thanos/pkg/testutil"
 	"github.com/thanos-io/thanos/test/e2e/e2ethanos"
