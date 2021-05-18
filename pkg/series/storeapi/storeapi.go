@@ -29,6 +29,7 @@ func NewSeries(logger log.Logger, conf series.Config) (Series, error) {
 func (i Series) Read(ctx context.Context, params series.Params) (series.Set, error) {
 	dialOpts, err := extgrpc.StoreClientGRPCOpts(i.logger, nil, tracing.NoopTracer(),
 		!i.conf.TLSConfig.InsecureSkipVerify,
+		i.conf.TLSConfig.InsecureSkipVerify,
 		i.conf.TLSConfig.CertFile,
 		i.conf.TLSConfig.KeyFile,
 		i.conf.TLSConfig.CAFile,
