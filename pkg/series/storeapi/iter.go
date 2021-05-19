@@ -6,7 +6,7 @@ import (
 	"github.com/prometheus/prometheus/tsdb/chunkenc"
 
 	"github.com/thanos-io/thanos/pkg/compact/downsample"
-	"github.com/thanos-io/thanos/pkg/store/storepb"
+	"github.com/thanos-io/thanos/0131/pkg/store/storepb"
 )
 
 // chunkSeries implements storage.Series for a series on storepb types.
