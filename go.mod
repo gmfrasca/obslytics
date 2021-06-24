@@ -1,4 +1,4 @@
-module github.com/thanos-community/obslytics
+module github.com/gmfrasca/obslytics
 
 go 1.14
 
